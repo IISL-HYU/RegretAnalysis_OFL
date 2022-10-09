@@ -20,18 +20,19 @@ class FL_Model(list):
         self.append(server_model)
     
     def train(self, x_train, y_train):
+        K = self.K
         grad_list = []
         loss_avg, acc_avg = 0, 0
         is_first = True
-        client_list = random_selection(self.K, self.prob)
+        client_list = random_selection(K, self.prob)
         
-        for i in range(self.K):
+        for i in range(K):
             result = self[i].train(x_train[i * self.batch_size : (i + 1) * self.batch_size], y_train[i * self.batch_size : (i + 1) * self.batch_size], self.quantize)
             grad_list.append(result[0])
             loss_avg += result[1]
             acc_avg += result[2]
-        loss_avg = loss_avg / self.K
-        acc_avg = acc_avg / self.K
+        loss_avg = loss_avg / K
+        acc_avg = acc_avg
         
         for i in client_list:
             if is_first:
@@ -43,10 +44,10 @@ class FL_Model(list):
                     
         for j in range(len(grad_avg)):
             grad_avg[j] /= len(client_list)
-        self[self.K].optimizer.apply_gradients(zip(grad_avg, self[self.K].trainable_variables))
+        self[K].optimizer.apply_gradients(zip(grad_avg, self[K].trainable_variables))
         
-        for i in range(self.K):
-            self[i].set_weights(self[self.K].get_weights())
+        for i in range(K):
+            self[i].set_weights(self[K].get_weights())
         
         return loss_avg, acc_avg
     
@@ -56,8 +57,8 @@ class FedOGDModel(tf.keras.Model):
         super(FedOGDModel, self).__init__()
         
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
-        self.loss = keras.losses.SparseCategoricalCrossentropy()
-        self.metric = keras.metrics.SparseCategoricalAccuracy()
+        self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
+        self.metric = tf.keras.metrics.SparseCategoricalAccuracy()
         self.batch_size = batch_size
         
         #MNIST CNN Model
@@ -68,10 +69,10 @@ class FedOGDModel(tf.keras.Model):
             layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Flatten(),
-            layers.Dropout(0.5),
-            layers.Dense(10, activation="softmax")
+            layers.Dense(10, activation="softmax"),
         ])
-        self.compile(optimizer = self.optimizer, loss = self.loss, metrics = self.metric)
+        tf.random.set_seed(3)
+        self.compile(optimizer = self.optimizer, loss = self.loss)
         
        
     def train(self, x_train, y_train, quantize):

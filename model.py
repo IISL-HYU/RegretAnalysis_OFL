@@ -30,6 +30,7 @@ class OFL_Model(list):
     def train(self, x_train, y_train, is_period):
         K = self.K
         grad_list = []
+        q_grad_list = []
         result = 0
         client_list = random_selection(K, self.prob)
         
@@ -44,12 +45,14 @@ class OFL_Model(list):
                 grad_list.append(self[i].gradient_sum)
             
             if self.quantize[0]:
-                grad_avg = quantizer(grad_list, self.quantize)
+                for i in range(len(grad_list)):
+                    q_grad_list.append(quantizer(grad_list[i], self.quantize))
             else:
-                grad_avg = grad_list[0]
-                for i in range(1, len(client_list)):
-                    for j in range(len(grad_avg)):
-                        grad_avg[j] += grad_list[i][j]
+                q_grad_list = grad_list
+            grad_avg = q_grad_list[0]
+            for i in range(1, len(client_list)):
+                for j in range(len(grad_avg)):
+                    grad_avg[j] += q_grad_list[i][j]
 
             for j in range(len(grad_avg)):
                 grad_avg[j] /= len(client_list)

@@ -7,7 +7,6 @@ def MNIST_data():
 
     return x_train, y_train
 
-
 def Air_data():
     return
 

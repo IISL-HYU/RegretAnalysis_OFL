@@ -13,6 +13,7 @@ class OFL_Model(list):
         self.prob = prob
         self.L = L
         self.result_list = []
+        self.latest_result = 0
         
         if task == 'clf':
             for i in range(K):
@@ -31,13 +32,12 @@ class OFL_Model(list):
         K = self.K
         grad_list = []
         q_grad_list = []
-        result = 0
         client_list = random_selection(K, self.prob)
         
         #Local Training
         for i in range(K):
-            result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period)
-        self.result_list.append(result)
+            self.latest_result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
+        self.result_list.append(self.latest_result)
         
         #Transmission
         if not is_period:
@@ -52,7 +52,7 @@ class OFL_Model(list):
             grad_avg = q_grad_list[0]
             for i in range(1, len(client_list)):
                 for j in range(len(grad_avg)):
-                    grad_avg[j] += q_grad_list[i][j]
+                    grad_avg[j] = grad_avg[j] + q_grad_list[i][j]
 
             for j in range(len(grad_avg)):
                 grad_avg[j] /= len(client_list)
@@ -93,7 +93,7 @@ class Clf_device(tf.keras.Model):
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
        
-    def train(self, x_train, y_train, is_period):
+    def train(self, x_train, y_train, is_period, L):
         with tf.GradientTape() as tape:
             y_pred = self(x_train, training = True)
             loss = self.loss(y_train, y_pred)
@@ -101,7 +101,7 @@ class Clf_device(tf.keras.Model):
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
         
-        if is_period == 1:
+        if L == 1 or is_period == 1:
             self.gradient_sum = gradient
         else :
             for i in range(len(gradient)):

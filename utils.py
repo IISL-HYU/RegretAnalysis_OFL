@@ -9,7 +9,6 @@ def random_selection(K, prob):
 
     return random.sample(select_list, count)
 
-
 def quantize(g, s):
     select_list = [0, 1]
     quan_g = g.copy()
@@ -55,64 +54,6 @@ def quantizer(grd_sum, quant):
     for i in range(len(grd_sum)):
         q_grd_sum[i].assign(q_grd_sum_list[i])
     return q_grd_sum
-
-
-
-# def quantizer(grad, quantize):
-
-#     s = quantize[1]
-#     b = quantize[2]
-    
-#     q_grad = [(tf.Variable(grad[i])) for i in range(len(grad))]
-#     grad_shape = [None for i in range(len(q_grad))]
-#     for i in range(len(q_grad)):
-#         grad_shape[i] = q_grad[i].numpy().shape
-#     grad_flat = []
-#     grad_tmp = []
-#     for i in range(len(q_grad)):
-#         grad_flat = np.append(grad_flat, q_grad[i])
-#         grad_tmp.append(q_grad[i])
-    
-#     D = len(grad_flat)
-#     print(D)
-    
-#     q_grad_flat = grad_flat
-
-#     for i in range(D//b):
-#         norm = np.linalg.norm(grad_tmp[i*b : (i+1)*b])
-#         for j in range(i*b, (i+1)*b):
-#             m_float = (np.abs(grad_tmp[j]) / norm) * s
-#             m = int(m_float)
-#             prob = m_float - m
-#             xi_list = [m/s, (m+1)/s]
-#             xi = np.random.choice(xi_list, 1, p=[1 - prob, prob])
-#             if grad_flat[j] < 0 :
-#                 xi[0] *= -1
-#             q_grad_flat[j] = norm * xi[0]   
-#     norm = np.linalg.norm(grad_flat[(D//b) * b : D])
-#     for j in range((D//b) * b, D):
-#         m_float = (np.abs(grad_flat[j]) / norm) * s
-#         m = int(m_float)
-#         prob = m_float - m
-#         xi_list = [m/s, (m+1)/s]
-#         xi = np.random.choice(xi_list, 1, p=[1 - prob, prob])
-#         if grad_flat[j] < 0 :
-#             xi[0] *= -1
-#         q_grad_flat[j] = norm * xi[0]
-    
-#     q_grad_tmp = [None for i in range(len(grad_shape))]
-#     bound_bef, bound_aft = 0, 0
-#     for i in range(len(grad_shape)):
-#         mulp = 1
-#         for j in range(len(grad_shape[i])):
-#             mulp = mulp * grad_shape[i][j]
-#         bound_bef = bound_aft
-#         bound_aft = bound_aft + mulp
-#         q_grad_tmp[i] = q_grad_flat[bound_bef:bound_aft].reshape(grad_shape[i])
-#     for i in range(len(grad)):
-#         q_grad[i].assign(q_grad_tmp[i])
-        
-#     return q_grad
 
 
 if __name__ == '__main__':

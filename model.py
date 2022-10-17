@@ -42,7 +42,10 @@ class OFL_Model(list):
         #Transmission
         if not is_period:
             for i in client_list:
-                grad_list.append(self[i].gradient_sum)
+                grad_sum = self[i].gradient_sum
+                for j in range(len(grad_sum)):
+                    grad_sum[j] = grad_sum[j] / self.prob
+                grad_list.append(grad_sum)
             
             if self.quantize[0]:
                 for i in range(len(grad_list)):
@@ -55,7 +58,7 @@ class OFL_Model(list):
                     grad_avg[j] = grad_avg[j] + q_grad_list[i][j]
 
             for j in range(len(grad_avg)):
-                grad_avg[j] /= len(client_list)
+                grad_avg[j] /= K
             self[K].optimizer.apply_gradients(zip(grad_avg, self[K].trainable_variables))            
 
             for i in range(K):

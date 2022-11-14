@@ -4,7 +4,7 @@ from keras import layers, models
 from utils import random_selection, quantizer
 
 class OFL_Model(list):
-    def __init__(self, name, task, K, quantize, prob, L):
+    def __init__(self, name, task, K, quantize, prob, L, input_size):
         super(OFL_Model, self).__init__()
         
         self.name = name
@@ -14,6 +14,7 @@ class OFL_Model(list):
         self.L = L
         self.result_list = []
         self.latest_result = 0
+        self.input_size = input_size
         
         if task == 'clf':
             for i in range(K):
@@ -21,12 +22,12 @@ class OFL_Model(list):
                 self.append(client_model)
             server_model = Clf_device()
             self.append(server_model)
-        # elif task == 'reg':
-        #     for i in range(K):
-        #         client_model = Reg_device(L=L)
-        #         self.append(client_model)
-        #     server_model = Reg_device(L=L)
-        #     self.append(server_model)
+        elif task == 'reg':
+            for i in range(K):
+                client_model = Reg_device(input_size)
+                self.append(client_model)
+            server_model = Reg_device(input_size)
+            self.append(server_model)
     
     def train(self, x_train, y_train, is_period):
         K = self.K
@@ -116,38 +117,41 @@ class Clf_device(tf.keras.Model):
         return self.dense(inputs)
 
 
-# class Reg_device(tf.keras.Model):
-#     def __init__(self, L):
-#         super(Clf_device, self).__init__()
+class Reg_device(tf.keras.Model):
+    def __init__(self, input_size):
+        super(Reg_device, self).__init__()
         
-#         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
-#         self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
-#         self.L = L
+        self.gradient_sum = 0
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.loss = tf.keras.losses.MeanSquaredError()
+        self.kernel_initializer = tf.keras.initializers.RandomNormal(stddev=0.01)
+        self.bias_initializer=tf.keras.initializers.Zeros()
+        self.input_size = input_size
         
-#         #MNIST CNN Model
-#         self.dense = tf.keras.Sequential([
-#             tf.keras.Input(shape=(28, 28, 1)),
-#             layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
-#             layers.MaxPooling2D(pool_size=(2, 2)),
-#             layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
-#             layers.MaxPooling2D(pool_size=(2, 2)),
-#             layers.Flatten(),
-#             layers.Dense(10, activation="softmax"),
-#         ])
-#         tf.random.set_seed(3)
-#         self.compile(optimizer = self.optimizer, loss = self.loss)
+        #MNIST CNN Model
+        self.dense = tf.keras.Sequential([
+            tf.keras.Input(shape=(input_size, 1)),
+            layers.Dense(32, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
+            layers.Dense(32, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
+            layers.Dense(1)
+        ])
+        tf.random.set_seed(3)
+        self.compile(optimizer = self.optimizer, loss = self.loss)
         
        
-#     def train(self, x_train, y_train, quantize):
-#         with tf.GradientTape() as tape:
-#             y_pred = self(x_train, training = True)
-#             loss = self.loss(y_train, y_pred)
-#         gradient = tape.gradient(loss, self.trainable_variables)
+    def train(self, x_train, y_train, is_period, L):
+        with tf.GradientTape() as tape:
+            y_pred = self(x_train, training = True)
+            loss = self.loss(y_train, y_pred)
+        gradient = tape.gradient(loss, self.trainable_variables)
         
-#         if quantize:
-#             gradient = quantize(gradient)
+        if L == 1 or is_period == 1:
+            self.gradient_sum = gradient
+        else :
+            for i in range(len(gradient)):
+                self.gradient_sum[i] += gradient[i]
         
-#         return gradient, loss.numpy()
+        return loss.numpy()
     
-#     def call(self, inputs):
-#         return self.dense(inputs)
+    def call(self, inputs):
+        return self.dense(inputs)

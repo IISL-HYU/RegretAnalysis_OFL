@@ -56,6 +56,28 @@ def quantizer(grd_sum, quant):
     return q_grd_sum
 
 
+def grad_norm_sq(grad):
+    norm_sq = 0
+    grad_flat = np.array([])
+    for i in range(len(grad)):
+        grad[i] = np.reshape(grad[i], -1)
+        grad_flat = np.concatenate((grad_flat, grad[i]))
+    norm_sq = np.dot(grad_flat, grad_flat)
+    return norm_sq
+
+def sigma_diff(model, x_train, y_train, iter):
+    sigma_sq = 0
+    K = model.K
+    for i in range(iter):
+        for j in range(K):
+            with tf.GradientTape() as tape:
+                y_pred = model[j](x_train[K*i+j:K*i+j+1], training = False)
+                loss = model[j].loss(y_train[K*i+j], y_pred)
+            gradient = tape.gradient(loss, model[j].trainable_variables)
+            sigma_sq += grad_norm_sq(gradient) / K
+
+    return sigma_sq / iter
+
 if __name__ == '__main__':
     test = []
     for i in range(5):

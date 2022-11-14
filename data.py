@@ -1,4 +1,4 @@
-from keras import datasets
+from tensorflow.keras import datasets
 import numpy as np
 import scipy.io
 
@@ -20,10 +20,12 @@ def MNIST_data(iid = True):
                 y_train_niid[index] = y_train_niid[index - 1]
                 x_train_niid[index] = x_train_niid[index - 1]
         
+        x_train = np.concatenate([x_train_iid[0:500], x_train_niid[0:500]])
+        y_train = np.concatenate([y_train_iid[0:500], y_train_niid[0:500]])
         # K=1000
-        for i in range(60):
-            x_train = np.concatenate([x_train_iid[500*(i):500*(i+1)], x_train_niid[500*(i):500*(i+1)]])
-            y_train = np.concatenate([y_train_iid[500*(i):500*(i+1)], y_train_niid[500*(i):500*(i+1)]])
+        for i in range(1, 60):
+            x_train = np.concatenate([x_train, x_train_iid[500*(i):500*(i+1)], x_train_niid[500*(i):500*(i+1)]])
+            y_train = np.concatenate([y_train, y_train_iid[500*(i):500*(i+1)], y_train_niid[500*(i):500*(i+1)]])
 
     return x_train, y_train
 

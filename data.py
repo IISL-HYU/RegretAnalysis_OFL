@@ -9,25 +9,23 @@ def MNIST_data(iid = True, shuffle = False):
     x_train = x_train / 255.0
 
     if iid == False:
-        x_train_1 = x_train[0:48000]
-        y_train_1 = y_train[0:48000]
-        x_train_2 = x_train[48000:54000]
-        y_train_2 = y_train[48000:54000]
-        x_train_3 = x_train[53999:59999]
-        y_train_3 = y_train[53999:59999]
+        x_train_1 = []
+        y_train_1 = []
+        x_train_2 = []
+        y_train_2 = []
+        x_train_3 = []
+        y_train_3 = []
 
-        for i in range(1, 48000):
-            if y_train_1[i] > 4:
-                x_train_1[i] = x_train_1[i-1]
-                y_train_1[i] = y_train_1[i-1]
-        for i in range(1, 6000):
-            if y_train_2[i] < 5 or y_train_2[i] > 8:
-                x_train_2[i] = x_train_2[i-1]
-                y_train_2[i] = y_train_2[i-1]
-        for i in range(1, 6000):
-            if y_train_3[i] < 8:
-                x_train_3[i] = x_train_3[i-1]
-                y_train_3[i] = y_train_3[i-1]
+        for i in range(60000):
+            if y_train[i] <= 4: #30000
+                x_train_1.append(x_train[i])
+                y_train_1.append(y_train[i])
+            elif y_train[i] >= 5 and y_train[i] < 8: #24000
+                x_train_2.append(x_train[i])
+                y_train_2.append(y_train[i])
+            else : #12000
+                x_train_3.append(x_train[i])
+                y_train_3.append(y_train[i])
         
         x_train = np.concatenate([x_train_1[0:800], x_train_2[0:100], x_train_3[0:100]])
         y_train = np.concatenate([y_train_1[0:800], y_train_2[0:100], y_train_3[0:100]])

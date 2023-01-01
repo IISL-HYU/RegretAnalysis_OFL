@@ -131,7 +131,6 @@ class Clf_device(tf.keras.Model):
         self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
         self.metric = tf.keras.metrics.SparseCategoricalAccuracy()
 
-        #MNIST CNN Model
         self.dense = tf.keras.Sequential([
             tf.keras.Input(shape=(None, 1, input_size)),
             layers.Dense(32, activation="relu"),

@@ -16,11 +16,17 @@ class OFL_Model(list):
         self.latest_result = 0
         self.input_size = input_size
         
-        if task == 'clf':
+        if input_size == -1 :
             for i in range(K):
-                client_model = Clf_device()
+                client_model = CNN_device()
                 self.append(client_model)
-            server_model = Clf_device()
+            server_model = CNN_device()
+            self.append(server_model)
+        elif task == 'clf':
+            for i in range(K):
+                client_model = Clf_device(input_size)
+                self.append(client_model)
+            server_model = Clf_device(input_size)
             self.append(server_model)
         elif task == 'reg':
             for i in range(K):
@@ -74,10 +80,10 @@ class OFL_Model(list):
         return result
     
     
-class Clf_device(tf.keras.Model):
+class CNN_device(tf.keras.Model):
     def __init__(self):
-        super(Clf_device, self).__init__()
-        
+        super(CNN_device, self).__init__()
+
         self.gradient_sum = 0
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
         self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
@@ -116,6 +122,43 @@ class Clf_device(tf.keras.Model):
     def call(self, inputs):
         return self.dense(inputs)
 
+class Clf_device(tf.keras.Model):
+    def __init__(self, input_size):
+        super(Clf_device, self).__init__()
+
+        self.gradient_sum = 0
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
+        self.metric = tf.keras.metrics.SparseCategoricalAccuracy()
+
+        #MNIST CNN Model
+        self.dense = tf.keras.Sequential([
+            tf.keras.Input(shape=(None, 1, input_size)),
+            layers.Dense(32, activation="relu"),
+            layers.Dense(32, activation="relu"),
+            layers.Dense(4, activation="softmax"),
+        ])
+        tf.random.set_seed(3)
+        self.compile(optimizer = self.optimizer, loss = self.loss)
+       
+    def train(self, x_train, y_train, is_period, L):
+        with tf.GradientTape() as tape:
+            y_pred = self(x_train, training = True)
+            loss = self.loss(y_train, y_pred)
+        gradient = tape.gradient(loss, self.trainable_variables)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        
+        if L == 1 or is_period == 1:
+            self.gradient_sum = gradient
+        else :
+            for i in range(len(gradient)):
+                self.gradient_sum[i] += gradient[i]
+                
+        return accuracy
+    
+    def call(self, inputs):
+        return self.dense(inputs)
 
 class Reg_device(tf.keras.Model):
     def __init__(self, input_size):

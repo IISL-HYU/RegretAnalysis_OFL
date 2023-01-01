@@ -1,5 +1,6 @@
 from tensorflow.keras import datasets
 import numpy as np
+import pandas as pd
 import scipy.io
 import random
 
@@ -34,7 +35,7 @@ def MNIST_data(iid = True, shuffle = False):
         random.shuffle(tmp)
         x_train, y_train = zip(*tmp)
 
-    return x_train, y_train, 0
+    return x_train, y_train, -1
 
 def Air_data():
     dataset = scipy.io.loadmat('./dataset/AirDataL.mat')
@@ -49,5 +50,25 @@ def Air_data():
     
     return X_train, y_train, input_size
 
-def Syn_data():
-    return
+def Room_data():
+    trainData = pd.read_csv("dataset/Occupancy_Estimation.csv")
+    x_train = trainData.iloc[:,:14]
+    x_train = x_train.values
+    y_train = trainData.iloc[:,14]
+    y_train = y_train.array
+    input_size = len(x_train[0])
+    
+    return x_train, y_train, input_size
+
+def Cond_data():
+    dataset = scipy.io.loadmat('./dataset/Conductivity.mat')
+    X = dataset['X']
+    y = dataset['y']
+    X = X.tolist()
+    y_train = np.array(y).reshape(len(y))
+    T = len(y)
+    input_size = len(X)
+    X_train = [list(i) for i in zip(*X)]
+    X_train = np.array(X_train).reshape(T, input_size, 1)
+    
+    return X_train, y_train, input_size

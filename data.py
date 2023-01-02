@@ -24,8 +24,8 @@ def MNIST_data(iid = True, shuffle = False):
                 y_train_2.append(y_train[i])
         
         # K=100
-        x_train = np.concatenate([x_train_1[0:80], x_train_2[0:10]])
-        y_train = np.concatenate([y_train_1[0:80], y_train_2[0:10]])
+        x_train = np.concatenate([x_train_1[0:80], x_train_2[0:20]])
+        y_train = np.concatenate([y_train_1[0:80], y_train_2[0:20]])
         for i in range(1, 375):
             x_train = np.concatenate([x_train, x_train_1[80*(i):80*(i+1)], x_train_2[20*(i):20*(i+1)]])
             y_train = np.concatenate([y_train, y_train_1[80*(i):80*(i+1)], y_train_2[20*(i):20*(i+1)]])

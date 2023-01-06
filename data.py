@@ -72,3 +72,30 @@ def Cond_data():
     X_train = np.array(X_train).reshape(T, input_size, 1)
     
     return X_train, y_train, input_size
+
+def Tom_data():
+    dataset = scipy.io.loadmat('./dataset/TomData.mat')
+    X = dataset['X']
+    y = dataset['y']
+    X = X.tolist()
+    y_train = np.array(y).reshape(len(y))
+    T = len(y)
+    input_size = len(X)
+    X_train = [list(i) for i in zip(*X)]
+    X_train = np.array(X_train).reshape(T, input_size, 1)
+    
+    return X_train, y_train, input_size
+
+
+def Energy_data():
+    dataset = scipy.io.loadmat('./dataset/EnergyData.mat')
+    X = dataset['X']
+    y = dataset['y']
+    X = X.tolist()
+    y_train = np.array(y).reshape(len(y))
+    T = len(y)
+    input_size = len(X)
+    X_train = [list(i) for i in zip(*X)]
+    X_train = np.array(X_train).reshape(T, input_size, 1)
+    
+    return X_train, y_train, input_size

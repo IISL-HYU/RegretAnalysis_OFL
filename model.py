@@ -133,8 +133,8 @@ class Clf_device(tf.keras.Model):
 
         self.dense = tf.keras.Sequential([
             tf.keras.Input(shape=(None, 1, input_size)),
-            layers.Dense(32, activation="relu"),
-            layers.Dense(32, activation="relu"),
+            layers.Dense(64, activation="relu"),
+            layers.Dense(64, activation="relu"),
             layers.Dense(4, activation="softmax"),
         ])
         tf.random.set_seed(3)
@@ -173,8 +173,8 @@ class Reg_device(tf.keras.Model):
         #MNIST CNN Model
         self.dense = tf.keras.Sequential([
             tf.keras.Input(shape=(input_size, 1)),
-            layers.Dense(32, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
-            layers.Dense(32, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
+            layers.Dense(64, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
+            layers.Dense(64, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
             layers.Dense(1)
         ])
         tf.random.set_seed(3)

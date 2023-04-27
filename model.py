@@ -116,7 +116,6 @@ class CNN_device(tf.keras.Model):
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
-                
         return accuracy
     
     def call(self, inputs):
@@ -130,7 +129,6 @@ class Clf_device(tf.keras.Model):
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
         self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
         self.metric = tf.keras.metrics.SparseCategoricalAccuracy()
-
         self.dense = tf.keras.Sequential([
             tf.keras.Input(shape=(None, 1, input_size)),
             layers.Dense(64, activation="relu"),
@@ -153,7 +151,6 @@ class Clf_device(tf.keras.Model):
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
-                
         return accuracy
     
     def call(self, inputs):
@@ -197,3 +194,6 @@ class Reg_device(tf.keras.Model):
     
     def call(self, inputs):
         return self.dense(inputs)
+
+#class Time_device(tf.keras.Model):
+    

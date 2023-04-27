@@ -99,3 +99,14 @@ def Energy_data():
     X_train = np.array(X_train).reshape(T, input_size, 1)
     
     return X_train, y_train, input_size
+
+
+def NN5_data():
+    Data = pd.read_csv("dataset/NN5.csv")
+    train = Data.iloc[:len(Data) - 56,:]
+    train = train.values
+    
+    test = Data.iloc[len(Data) - 56:,:]
+    test = test.values
+    
+    return train, test

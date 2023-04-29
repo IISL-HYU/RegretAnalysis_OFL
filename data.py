@@ -109,4 +109,4 @@ def NN5_data():
     test = Data.iloc[len(Data) - 56:,:]
     test = test.values
     
-    return train, test
+    return train.T, test.T

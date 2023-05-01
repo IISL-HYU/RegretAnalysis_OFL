@@ -231,8 +231,8 @@ class Time_device(tf.keras.Model):
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
-        
-        return loss.numpy()
+                
+        return loss.numpy() 
     
     def call(self, inputs):
         return self.dense(inputs)

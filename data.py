@@ -102,7 +102,7 @@ def Energy_data():
 
 
 def NN5_data():
-    Data = pd.read_csv("dataset/NN5.csv")
+    Data = pd.read_csv("dataset/NN5_copy.csv")
     train = Data.iloc[:len(Data) - 56,:]
     train = train.values
     

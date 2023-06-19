@@ -22,6 +22,12 @@ class OFL_Model(list):
                 self.append(client_model)
             server_model = CNN_device()
             self.append(server_model)
+        if input_size == -2 :
+            for i in range(K):
+                client_model = CNN_2_device()
+                self.append(client_model)
+            server_model = CNN_2_device()
+            self.append(server_model)
         elif task == 'clf':
             for i in range(K):
                 client_model = Clf_device(input_size)
@@ -103,6 +109,50 @@ class CNN_device(tf.keras.Model):
             layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Flatten(),
+            layers.Dense(10, activation="softmax"),
+        ])
+        tf.random.set_seed(3)
+        self.compile(optimizer = self.optimizer, loss = self.loss)
+        
+       
+    def train(self, x_train, y_train, is_period, L):
+        with tf.GradientTape() as tape:
+            y_pred = self(x_train, training = True)
+            loss = self.loss(y_train, y_pred)
+        gradient = tape.gradient(loss, self.trainable_variables)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        
+        if L == 1 or is_period == 1:
+            self.gradient_sum = gradient
+        else :
+            for i in range(len(gradient)):
+                self.gradient_sum[i] += gradient[i]
+        return accuracy
+    
+    def call(self, inputs):
+        return self.dense(inputs)
+
+
+class CNN_2_device(tf.keras.Model):
+    def __init__(self):
+        super(CNN_2_device, self).__init__()
+
+        self.gradient_sum = 0
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
+        self.metric = tf.keras.metrics.SparseCategoricalAccuracy()
+        
+        self.dense = tf.keras.Sequential([
+            tf.keras.Input(shape=(32, 32, 3)),
+            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Flatten(),
+            layers.Dense(64, activation="relu"),
             layers.Dense(10, activation="softmax"),
         ])
         tf.random.set_seed(3)

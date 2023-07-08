@@ -4,13 +4,6 @@ import pandas as pd
 import scipy.io
 import random
 
-def CIFAR_10_data():
-    (x_train, y_train), (x_test, y_test) = datasets.cifar10.load_data()
-    x_train = x_train.reshape((50000, 32, 32, 3))
-    x_train = x_train / 255.0
-    
-    return x_train, y_train, -2
-
 
 def MNIST_data(iid = True, shuffle = False):
     (x_train, y_train), (x_test, y_test) = datasets.mnist.load_data()

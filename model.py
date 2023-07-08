@@ -1,6 +1,5 @@
 import tensorflow as tf
-import keras
-from keras import layers, models
+from keras import layers
 from utils import random_selection, quantizer
 
 class OFL_Model(list):
@@ -90,6 +89,11 @@ class OFL_Model(list):
         for i in range(len(self.result_list)):
             result.append(self.result_list[i] / (K * (i+1)))
         return result
+    
+    def pull_last_result(self):
+        K = self.K
+        last_result = self.result_list[-1] / (K * (len(self.result_list)))
+        return last_result
     
     
 class CNN_device(tf.keras.Model):

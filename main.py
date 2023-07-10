@@ -1,12 +1,12 @@
 import pickle
 import numpy as np
 
-from data_L import CIFAR_10_data
+from data_L import CIFAR_10_data, data_shuffle
 from model import OFL_Model
 
-K = 1000        # Number of clients
+K = 100        # Number of clients
 D = 52874       # CIFAR-10
-P = 0.05        # Com. overhead reduction rate from FedOGD
+P = 0.10        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):
     
@@ -26,9 +26,11 @@ def opt_param(p1, D, print_result):
             min_p2 = p2
 
     if print_result:
-        print("OFedIQ optimal parameter same communication overhead with OFedAvg (p = %.3f)" %(p1))
-        print("s =", min_index, ", alpha =", min_alpha)
-        print("b =", int(min_alpha * D), ", p2 =", min_p2)
+        print()
+        print("- OFedIQ optimal parameter same communication overhead with OFedAvg (p = %.3f)" %(p1))
+        print("- s =", min_index, ", alpha =", min_alpha)
+        print("- b =", int(min_alpha * D), ", p =", min_p2)
+        print()
     
     return min_index, min_alpha, int(min_alpha * D), min_p2
 s, _, b, p = opt_param(P, D, True)
@@ -41,15 +43,19 @@ Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
 Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
 Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
 Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
-print("Model list is generated")
+print("========= Model_list is generated ===================")
+print()
 
-iter_max = 25
+iter_max = 1
 i_max = len(y_train) // K
+print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)
+print()
 
 for model in Model_list:
     print("==========", model.name, "===========================")
     for iter in range(iter_max):
+        #x_train, y_train = data_shuffle(x_train, y_train)
         for i in range(i_max):
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()

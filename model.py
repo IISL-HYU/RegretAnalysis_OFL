@@ -21,7 +21,7 @@ class OFL_Model(list):
                 self.append(client_model)
             server_model = CNN_device()
             self.append(server_model)
-        if input_size == -2 :
+        elif input_size == -2 :
             for i in range(K):
                 client_model = CNN_2_device()
                 self.append(client_model)

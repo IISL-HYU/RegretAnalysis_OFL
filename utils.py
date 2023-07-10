@@ -1,7 +1,7 @@
+import math
 import random
 import numpy as np
 import tensorflow as tf
-import math
 
 def random_selection(K, prob):
     select_list = list(range(0, K))

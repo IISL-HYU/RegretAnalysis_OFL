@@ -7,8 +7,8 @@ from data_L import CIFAR_10_data, MNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 100        # Number of clients
-D = 4548 #52874       # CIFAR-10 34826
-P = 0.10        # Com. overhead reduction rate from FedOGD
+D = 52874       # CIFAR-10 34826
+P = 0.1        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):
     
@@ -37,18 +37,18 @@ def opt_param(p1, D, print_result):
     return min_index, min_alpha, int(min_alpha * D), min_p2
 s, _, b, p = opt_param(P, D, True)
 
-data, x_train, y_train, input_size = Room_data() #CIFAR_10_data() #MNIST_data() #Room_data()
+data, x_train, y_train, input_size = CIFAR_10_data() #MNIST_data() #Room_data()
 task = 'clf'
 
 Model_list = []
 Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
 Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
 Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
-# Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
+Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
-iter_max = 10
+iter_max = 25
 i_max = len(y_train) // K
 print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)

@@ -79,9 +79,7 @@ class OFL_Model(list):
                     grad_flat = np.hstack((grad_flat, tmp_flat))
                 grad_flat /= self.prob
                 if self.quantize[0]:
-                    #print('A:', grad_flat[0:10])
                     grad_flat = quantizer(grad_flat, self.quantize)
-                    #print('B:', grad_flat[0:10])
                 if idx == 0 : grad = grad_flat
                 else: grad += grad_flat
 
@@ -148,6 +146,7 @@ class CNN_device(tf.keras.Model):
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
+        print(accuracy)
         return accuracy
     
     def call(self, inputs):
@@ -177,7 +176,6 @@ class CNN_2_device(tf.keras.Model):
         tf.random.set_seed(3)
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
-       
     def train(self, x_train, y_train, is_period, L):
         with tf.GradientTape() as tape:
             y_pred = self(x_train, training = True)

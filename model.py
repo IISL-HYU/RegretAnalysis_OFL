@@ -79,7 +79,9 @@ class OFL_Model(list):
                     grad_flat = np.hstack((grad_flat, tmp_flat))
                 grad_flat /= self.prob
                 if self.quantize[0]:
+                    #print('A:', grad_flat[0:10])
                     grad_flat = quantizer(grad_flat, self.quantize)
+                    #print('B:', grad_flat[0:10])
                 if idx == 0 : grad = grad_flat
                 else: grad += grad_flat
 
@@ -310,10 +312,15 @@ if __name__ == '__main__':
   import tensorflow as tf
   import time
 
-  model = OFL_Model('FedOGD', 'clf', 5, [False, 0, 0], 1, 1, -1)
+  model = OFL_Model('OFedIQ', 'clf', 5, [True, 17, 1134], 0.5151, 1, -1)
+  #OFL_Model('FedOGD', 'clf', 5, [False, 0, 0], 1, 1, -1)
+
   (x,y), (x1,y1) = tf.keras.datasets.mnist.load_data()
   x = x.reshape((60000, 28, 28, 1))
   x = x / 255.0
   print(time.ctime())
-  for i in range(2):
-    model.train(x[5*i : 5*(i+1)], y[5*i : 5*(i+1)], 0)
+  for j in range(100):
+    for i in range(1):
+      model.train(x[5*i : 5*(i+1)], y[5*i : 5*(i+1)], 0)
+    print(model.pull_last_result())
+

@@ -9,61 +9,34 @@ def random_selection(K, prob):
 
     return random.sample(select_list, count)
 
-def quantize(g, s):
-    select_list = [0, 1]
-    quan_g = g.copy()
-    g_abs = np.linalg.norm(g, 2)
-    for i in range(len(g)):
-        for l in range(s):
-            if(g_abs * (l/s) <= abs(g[i]) and abs(g[i]) < g_abs * (l+1) / s):
-                p = (abs(g[i]) / g_abs) * s - l
-                distri = [1-p, p]
-                l_temp = random.choices(select_list, distri)[0]
-                quan_g[i] = (l + l_temp) / s * g_abs
-                if(g[i] < 0):
-                    quan_g[i] = -1 * quan_g[i]
-                break
-    return quan_g
 
-def quantizer(grd_sum, quant):
-    
+def quantizer(grad, quant):
     s = quant[1]
     b = quant[2]
-    
-    q_grd_sum = [(tf.Variable(grd_sum[i])) for i in range(len(grd_sum))]
-    model_params = [None for i in range(len(q_grd_sum))]
-    for i in range(len(q_grd_sum)):
-        model_params[i] = q_grd_sum[i].numpy().shape
-    all_params = []
-    for i in range(len(q_grd_sum)):
-        all_params = np.append(all_params, q_grd_sum[i])
-    div_len = math.ceil(len(all_params) / b)  
-    for i in range(b):
-        temp_params = all_params[i*div_len:(i+1)*div_len]
-        temp_params = quantize(temp_params, s)
-        all_params[i*div_len:(i+1)*div_len] = temp_params
-    q_grd_sum_list = [None for i in range(len(model_params))]
-    bound_bef, bound_aft = 0, 0
-    for i in range(len(model_params)):
-        mulp = 1
-        for j in range(len(model_params[i])):
-            mulp = mulp * model_params[i][j]
-        bound_bef = bound_aft
-        bound_aft = bound_aft + mulp
-        q_grd_sum_list[i] = all_params[bound_bef:bound_aft].reshape(model_params[i])
-    for i in range(len(grd_sum)):
-        q_grd_sum[i].assign(q_grd_sum_list[i])
-    return q_grd_sum
+    D = len(grad)
+    part_size = D//b
+    norm_list = np.zeros(b)
 
+    for l in range(b-1):
+        norm_list[l] = np.linalg.norm(grad[part_size*l : part_size*(l+1)], 2)
+    norm_list[b-1] = np.linalg.norm(grad[part_size*(b-1) : D], 2)
 
-def grad_norm_sq(grad):
-    norm_sq = 0
-    grad_flat = np.array([])
-    for i in range(len(grad)):
-        grad[i] = np.reshape(grad[i], -1)
-        grad_flat = np.concatenate((grad_flat, grad[i]))
-    norm_sq = np.dot(grad_flat, grad_flat)
-    return norm_sq
+    q_grad = np.zeros(D)
+    for i in range(D):
+        if i//part_size >= b : norm = norm_list[-1]
+        else : norm = norm_list[i//part_size]
+        if grad[i] == 0 : q_grad[i] = 0
+        else: 
+            sign = 1
+            if grad[i] < 0 : sign = -1
+            tmp = s * (abs(grad[i])/norm)
+            m = tmp//1
+            if m > s : print(m)
+            dist = [1-(tmp-m), tmp-m]
+            xi = (m + random.choices([0,1], dist)[0]) / s
+            q_grad[i] = norm * sign * xi
+    return q_grad
+
 
 def sigma_diff(model, x_train, y_train, iter):
     sigma_sq = 0

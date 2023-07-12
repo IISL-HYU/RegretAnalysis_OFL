@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from keras import layers
 from utils import random_selection, quantizer
@@ -11,6 +12,8 @@ class OFL_Model(list):
         self.quantize = quantize
         self.prob = prob
         self.L = L
+        self.grad_len = 0
+        self.grad_info = ()
         self.result_list = []
         self.latest_result = 0
         self.input_size = input_size
@@ -48,40 +51,53 @@ class OFL_Model(list):
     
     def train(self, x_train, y_train, is_period):
         K = self.K
-        grad_list = []
-        q_grad_list = []
         client_list = random_selection(K, self.prob)
         
         #Local Training
+        latest_result = 0
         for i in range(K):
-            self.latest_result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
-        self.result_list.append(self.latest_result)
+            latest_result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
+        self.result_list.append(latest_result)
+        self.latest_result = latest_result
         
         #Transmission
         if not is_period:
-            for i in client_list:
-                grad_sum = self[i].gradient_sum
-                for j in range(len(grad_sum)):
-                    grad_sum[j] = grad_sum[j] / self.prob
-                grad_list.append(grad_sum)
+            grad_sample = self[0].gradient_sum
+            if self.grad_len == 0:
+              self.grad_len = len(grad_sample)
+              for i in range(self.grad_len):
+                  layer_shape = grad_sample[i].get_shape()
+                  layer_len = len(grad_sample[i].numpy().flatten())
+                  self.grad_info += (layer_shape, layer_len)
             
-            if self.quantize[0]:
-                for i in range(len(grad_list)):
-                    q_grad_list.append(quantizer(grad_list[i], self.quantize))
-            else:
-                q_grad_list = grad_list
-            grad_avg = q_grad_list[0]
-            for i in range(1, len(client_list)):
-                for j in range(len(grad_avg)):
-                    grad_avg[j] = grad_avg[j] + q_grad_list[i][j]
+            grad = []
+            grad_len = self.grad_len
+            grad_info = self.grad_info
+            for idx, i in enumerate(client_list):
+                grad_flat = np.array([])
+                grad_tmp = self[i].gradient_sum
+                for j in range(grad_len):
+                    tmp_flat = grad_tmp[j].numpy().flatten()
+                    grad_flat = np.hstack((grad_flat, tmp_flat))
+                grad_flat /= self.prob
+                if self.quantize[0]:
+                    grad_flat = quantizer(grad_flat, self.quantize)
+                if idx == 0 : grad = grad_flat
+                else: grad += grad_flat
 
-            for j in range(len(grad_avg)):
-                grad_avg[j] /= K
-            self[K].optimizer.apply_gradients(zip(grad_avg, self[K].trainable_variables))            
+            grad /= K
+            grad_final = []
+            index = 0
+            for i in range(grad_len):
+                arr = grad[index:index+grad_info[2*i + 1]]
+                index += grad_info[2*i + 1]
+                grad_final.append(tf.convert_to_tensor(arr.reshape(grad_info[2*i]), dtype="float32"))
+            self[K].optimizer.apply_gradients(zip(grad_final, self[K].trainable_variables))            
 
+            weights = self[K].get_weights()
             for i in range(K):
                 self[i].gradient_sum = 0
-                self[i].set_weights(self[K].get_weights())
+                self[i].set_weights(weights)
     
     def pull_result(self):
         K = self.K
@@ -136,7 +152,6 @@ class CNN_device(tf.keras.Model):
     
     def call(self, inputs):
         return self.dense(inputs)
-
 
 class CNN_2_device(tf.keras.Model):
     def __init__(self):
@@ -290,3 +305,17 @@ class Time_device(tf.keras.Model):
     
     def call(self, inputs):
         return self.dense(inputs)
+    
+
+if __name__ == '__main__':
+  
+  import tensorflow as tf
+  import time
+
+  model = OFL_Model('FedOGD', 'clf', 5, [False, 0, 0], 1, 1, -1)
+  (x,y), (x1,y1) = tf.keras.datasets.mnist.load_data()
+  x = x.reshape((60000, 28, 28, 1))
+  x = x / 255.0
+  print(time.ctime())
+  for i in range(2):
+    model.train(x[5*i : 5*(i+1)], y[5*i : 5*(i+1)], 0)

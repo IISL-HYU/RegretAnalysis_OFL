@@ -5,7 +5,7 @@ import numpy as np
 from data_L import CIFAR_10_data, MNIST_data, data_shuffle
 from model import OFL_Model
 
-K = 100        # Number of clients
+K = 1000        # Number of clients
 D = 34826 #52874       # CIFAR-10
 P = 0.10        # Com. overhead reduction rate from FedOGD
 
@@ -58,9 +58,10 @@ for model in Model_list:
     for iter in range(iter_max):
         x_train, y_train = data_shuffle(x_train, y_train)
         for i in range(i_max):
+            #model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], 0)
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()
-        print("iter",iter," | Accuracy =", last_acc, "% | Time =", time.ctime(time()))
+        print("iter",iter," | Accuracy =", last_acc, "% | Time =", time.ctime())
     print("==========", model.name, "finished ==================")
     
     result = model.pull_result()

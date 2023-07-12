@@ -2,11 +2,12 @@ import time
 import pickle
 import numpy as np
 
+from data   import Room_data
 from data_L import CIFAR_10_data, MNIST_data, data_shuffle
-from model import OFL_Model
+from model  import OFL_Model
 
-K = 1000        # Number of clients
-D = 34826 #52874       # CIFAR-10
+K = 100        # Number of clients
+D = 4548 #52874       # CIFAR-10 34826
 P = 0.10        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):
@@ -36,36 +37,37 @@ def opt_param(p1, D, print_result):
     return min_index, min_alpha, int(min_alpha * D), min_p2
 s, _, b, p = opt_param(P, D, True)
 
-data, x_train, y_train, input_size = MNIST_data() #Room_data() CIFAR_10_data() #
+data, x_train, y_train, input_size = Room_data() #CIFAR_10_data() #MNIST_data() #Room_data()
 task = 'clf'
 
 Model_list = []
 Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
-# Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
-# Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
+Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
+Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
 # Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
-iter_max = 2
+iter_max = 10
 i_max = len(y_train) // K
 print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)
 print()
 
-for model in Model_list:
-    print("==========", model.name, "===========================")
-    for iter in range(iter_max):
-        x_train, y_train = data_shuffle(x_train, y_train)
+for iter in range(iter_max):
+    print("========== iter", iter, "started ==================")
+    x_train, y_train = data_shuffle(x_train, y_train)
+    for model in Model_list:
+        print("<", model.name, ">")
         for i in range(i_max):
             #model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], 0)
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()
-        print("iter",iter," | Accuracy =", last_acc, "% | Time =", time.ctime())
-    print("==========", model.name, "finished ==================")
-    
+        print(model.name, "| Accuracy =", last_acc, "% | Time =", time.ctime())
+
+for model in Model_list:
     result = model.pull_result()
     with open(f"./result_L/{task}_{model.name}_{data}_{P}.pkl","wb") as f:
-      pickle.dump(result, f)
+        pickle.dump(result, f)
       
 print("Finished.")

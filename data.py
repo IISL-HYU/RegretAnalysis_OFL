@@ -59,7 +59,7 @@ def Room_data():
     y_train = y_train.array
     input_size = len(x_train[0])
     
-    return x_train, y_train, input_size
+    return 'Room', x_train, y_train, input_size
 
 def Cond_data():
     dataset = scipy.io.loadmat('./dataset/Conductivity.mat')

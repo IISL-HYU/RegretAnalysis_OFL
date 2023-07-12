@@ -108,7 +108,7 @@ class OFL_Model(list):
     
     def pull_last_result(self):
         K = self.K
-        last_result = self.result_list[-1] / (K * (len(self.result_list)))
+        last_result = self.result_list[len(self.result_list) - 1] / (K * (len(self.result_list)))
         return last_result
     
     

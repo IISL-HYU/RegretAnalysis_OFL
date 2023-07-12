@@ -54,11 +54,9 @@ class OFL_Model(list):
         client_list = random_selection(K, self.prob)
         
         #Local Training
-        latest_result = 0
         for i in range(K):
-            latest_result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
-        self.result_list.append(latest_result)
-        self.latest_result = latest_result
+            self.latest_result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
+        self.result_list.append(self.latest_result)
         
         #Transmission
         if not is_period:

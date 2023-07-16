@@ -31,7 +31,6 @@ def quantizer(grad, quant):
             if grad[i] < 0 : sign = -1
             tmp = s * (abs(grad[i])/norm)
             m = tmp//1
-            if m > s : print(m)
             dist = [1-(tmp-m), tmp-m]
             xi = (m + random.choices([0,1], dist)[0]) / s
             q_grad[i] = norm * sign * xi

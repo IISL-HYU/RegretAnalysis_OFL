@@ -6,9 +6,9 @@ from data   import Room_data
 from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
-K = 100        # Number of clients
-D = 558570      # MNIST 34826 / CIFAR_10 558570 / EMNIST 6442
-P = 0.1        # Com. overhead reduction rate from FedOGD
+K = 1000        # Number of clients
+D = 82698      # MNIST 34826 / CIFAR_10 82698 / EMNIST 60442
+P = 0.2        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):
     
@@ -17,7 +17,7 @@ def opt_param(p1, D, print_result):
     bound_list = []
 
     for s in range(1, 100):
-        bound = np.log2(s + 1)/(16*p1) + 4/p1 * np.power(p1/s, 2/3)
+        bound = np.log2(s + 1)/16 + 4 * np.power(p1/s, 2/3)
         bound_list.append(bound)
         alpha = np.power(p1/s, 2/3)
         p2 = 32 * p1/(32 * alpha + 1 + np.log2(s + 1))
@@ -60,11 +60,11 @@ for iter in range(iter_max):
     for model in Model_list:
         print("<", model.name, ">")
         for i in range(i_max):
-            print(i, end=',')
-            #model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], 0)
+            if i%5 == 0:
+                print(i, ", Time = ", time.ctime(), end=' | ')
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()
-        print(model.name, "| Accuracy =", last_acc, "% | Time =", time.ctime())
+        print(model.name, "| Accuracy =", last_acc, "%")
 
 for model in Model_list:
     result = model.pull_result()

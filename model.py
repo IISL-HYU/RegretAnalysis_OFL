@@ -68,7 +68,7 @@ class OFL_Model(list):
                 self.latest_result += result
                 self.result_list.append(self.latest_result)
 
-        #Transmission
+            #Transmission
             grad_sample = self[0].gradient_sum
             if self.grad_len == 0:
               self.grad_len = len(grad_sample)
@@ -180,8 +180,11 @@ class CNN_2_device(tf.keras.Model):
             layers.Conv2D(64, kernel_size=(3, 3), padding='same', activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Dropout(0.25),
+            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(0.25),
             layers.Flatten(),
-            layers.Dense(512, activation="relu"),
+            layers.Dense(256, activation="relu"),
             layers.Dropout(0.5),
             layers.Dense(10, activation="softmax"),
         ])

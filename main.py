@@ -60,6 +60,7 @@ for iter in range(iter_max):
     for model in Model_list:
         print("<", model.name, ">")
         for i in range(i_max):
+            print(i, end=',')
             #model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], 0)
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()

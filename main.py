@@ -7,8 +7,8 @@ from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 100        # Number of clients
-D = 52874      # MNIST 34826 / CIFAR_10 558570 / EMNIST 6442
-P = 0.2        # Com. overhead reduction rate from FedOGD
+D = 558570      # MNIST 34826 / CIFAR_10 558570 / EMNIST 6442
+P = 0.1        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):
     
@@ -41,10 +41,10 @@ data, x_train, y_train, input_size = CIFAR_10_data() #MNIST_data() #Room_data()
 task = 'clf'
 
 Model_list = []
-#Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
+Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
 Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
-#Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
-#Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
+Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
+Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 

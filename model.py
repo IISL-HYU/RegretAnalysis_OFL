@@ -62,9 +62,9 @@ class OFL_Model(list):
         #Local Training
         result = 0
         for i in range(K):
-            result += self[i].trian(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
+            result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
         if not is_period:
-            for i in range(L):
+            for i in range(self.L):
                 self.latest_result += result
                 self.result_list.append(self.latest_result)
 

@@ -30,6 +30,12 @@ class OFL_Model(list):
                 self.append(client_model)
             server_model = CNN_2_device()
             self.append(server_model)
+        elif input_size == -3 :
+            for i in range(K):
+                client_model = CNN_3_device()
+                self.append(client_model)
+            server_model = CNN_3_device()
+            self.append(server_model)
         elif task == 'clf':
             for i in range(K):
                 client_model = Clf_device(input_size)
@@ -54,12 +60,15 @@ class OFL_Model(list):
         client_list = random_selection(K, self.prob)
         
         #Local Training
+        result = 0
         for i in range(K):
-            self.latest_result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
-        self.result_list.append(self.latest_result)
-        
-        #Transmission
+            result += self[i].trian(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
         if not is_period:
+            for i in range(L):
+                self.latest_result += result
+                self.result_list.append(self.latest_result)
+
+        #Transmission
             grad_sample = self[0].gradient_sum
             if self.grad_len == 0:
               self.grad_len = len(grad_sample)
@@ -167,10 +176,13 @@ class CNN_2_device(tf.keras.Model):
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
+            layers.Dropout(0.25),
+            layers.Conv2D(64, kernel_size=(3, 3), padding='same', activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Dropout(0.25),
             layers.Flatten(),
-            layers.Dense(64, activation="relu"),
+            layers.Dense(512, activation="relu"),
+            layers.Dropout(0.5),
             layers.Dense(10, activation="softmax"),
         ])
         tf.random.set_seed(3)
@@ -189,6 +201,47 @@ class CNN_2_device(tf.keras.Model):
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
+        return accuracy
+    
+    def call(self, inputs):
+        return self.dense(inputs)
+
+class CNN_3_device(tf.keras.Model):
+    def __init__(self):
+        super(CNN_device, self).__init__()
+
+        self.gradient_sum = 0
+        self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
+        self.loss = tf.keras.losses.SparseCategoricalCrossentropy()
+        self.metric = tf.keras.metrics.SparseCategoricalAccuracy()
+        
+        #MNIST CNN Model
+        self.dense = tf.keras.Sequential([
+            tf.keras.Input(shape=(28, 28, 1)),
+            layers.Conv2D(32, kernel_size=(3, 3), activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Conv2D(64, kernel_size=(3, 3), activation="relu"),
+            layers.MaxPooling2D(pool_size=(2, 2)),
+            layers.Flatten(),
+            layers.Dense(26, activation="softmax"),
+        ])
+        self.compile(optimizer = self.optimizer, loss = self.loss)
+        
+       
+    def train(self, x_train, y_train, is_period, L):
+        with tf.GradientTape() as tape:
+            y_pred = self(x_train, training = True)
+            loss = self.loss(y_train, y_pred)
+        gradient = tape.gradient(loss, self.trainable_variables)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        
+        if L == 1 or is_period == 1:
+            self.gradient_sum = gradient
+        else :
+            for i in range(len(gradient)):
+                self.gradient_sum[i] += gradient[i]
+        print(accuracy)
         return accuracy
     
     def call(self, inputs):

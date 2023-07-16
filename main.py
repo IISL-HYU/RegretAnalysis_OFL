@@ -3,11 +3,11 @@ import pickle
 import numpy as np
 
 from data   import Room_data
-from data_L import CIFAR_10_data, MNIST_data, data_shuffle
+from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 100        # Number of clients
-D = 52874       # CIFAR-10 34826
+D = 52874      # MNIST 34826 / CIFAR_10 558570 / EMNIST 6442
 P = 0.2        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):

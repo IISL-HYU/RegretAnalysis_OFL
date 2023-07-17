@@ -7,8 +7,8 @@ from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 1000        # Number of clients
-D = 82698      # MNIST 34826 / CIFAR_10 82698 / EMNIST 60442
-P = 0.2        # Com. overhead reduction rate from FedOGD
+D = 150826     # MNIST 34826 / CIFAR_10 150826 / EMNIST 60442
+P = 0.1        # Com. overhead reduction rate from FedOGD
 
 def opt_param(p1, D, print_result):
     
@@ -48,6 +48,8 @@ Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
+#for model in Model_list: model.pre_train(x_train, y_train)
+
 iter_max = 25
 i_max = len(y_train) // K
 print()
@@ -60,7 +62,7 @@ for iter in range(iter_max):
     for model in Model_list:
         print("<", model.name, ">")
         for i in range(i_max):
-            if i%5 == 0:
+            if i%100 == 0:
                 print(i, ", Time = ", time.ctime(), end=' | ')
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()

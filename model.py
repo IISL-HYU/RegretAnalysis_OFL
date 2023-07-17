@@ -146,7 +146,6 @@ class CNN_device(tf.keras.Model):
             layers.Flatten(),
             layers.Dense(10, activation="softmax"),
         ])
-        tf.random.set_seed(3)
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
        
@@ -157,13 +156,13 @@ class CNN_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
-        
+        self.metric.reset_state()
+
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
-        print(accuracy)
         return accuracy
     
     def call(self, inputs):
@@ -188,7 +187,6 @@ class CNN_2_device(tf.keras.Model):
             layers.Dense(32, activation="relu"),
             layers.Dense(10, activation="softmax"),
         ])
-        tf.random.set_seed(3)
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
     def train(self, x_train, y_train, is_period, L):
@@ -198,7 +196,8 @@ class CNN_2_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
-        
+        self.metric.reset_state()
+
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient
         else :
@@ -228,7 +227,6 @@ class CNN_3_device(tf.keras.Model):
             layers.Flatten(),
             layers.Dense(26, activation="softmax"),
         ])
-        tf.random.set_seed(3)
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
        
@@ -239,7 +237,8 @@ class CNN_3_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
-        
+        self.metric.reset_state()
+
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient
         else :
@@ -274,6 +273,7 @@ class Clf_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
+        self.metric.reset_state()
         
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient

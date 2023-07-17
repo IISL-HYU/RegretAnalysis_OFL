@@ -37,7 +37,7 @@ def opt_param(p1, D, print_result):
     return min_index, min_alpha, int(min_alpha * D), min_p2
 s, _, b, p = opt_param(P, D, True)
 
-data, x_train, y_train, input_size = CIFAR_10_data() #MNIST_data() #Room_data()
+data, x_train, y_train, input_size = MNIST_data() #MNIST_data() #Room_data()
 task = 'clf'
 
 Model_list = []
@@ -48,12 +48,12 @@ Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
-initial_weights = Model_list[0].pre_train(x_train[0:20000], y_train[0:20000])
+initial_weights = Model_list[0].pre_train(x_train[0:1], y_train[0:1])
 for model in Model_list:
     for i in range(K+1):
         model[i].set_weights(initial_weights)
 
-iter_max = 25
+iter_max = 5
 i_max = len(y_train) // K
 print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)
@@ -65,7 +65,7 @@ for iter in range(iter_max):
     for model in Model_list:
         print("<", model.name, ">")
         for i in range(i_max):
-            if i%100 == 0:
+            if i%50 == 0:
                 print(i, ", Time = ", time.ctime(), end=' | ')
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()

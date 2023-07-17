@@ -55,8 +55,14 @@ class OFL_Model(list):
             server_model = Time_device(window=input_size)
             self.append(server_model)
     
-    def pre_train(self, x_train, y_train, ):
-        self[self.K].fit(x_train, y_train, epochs=3)
+    def pre_train(self, x_train, y_train):
+        K = self.K
+        self[K].fit(x_train, y_train, epochs=1)
+        weights = self[K].get_weights()
+        for i in range(K):
+            self[i].gradient_sum = 0
+            self[i].set_weights(weights)
+        
             
     def train(self, x_train, y_train, is_period):
         K = self.K
@@ -141,6 +147,7 @@ class CNN_device(tf.keras.Model):
             layers.Flatten(),
             layers.Dense(10, activation="softmax"),
         ])
+        tf.random.set_seed(3)
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
        
@@ -179,7 +186,7 @@ class CNN_2_device(tf.keras.Model):
             layers.Conv2D(64, kernel_size=(3, 3), padding='same', activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Flatten(),
-            layers.Dense(64, activation="relu"),
+            layers.Dense(32, activation="relu"),
             layers.Dense(10, activation="softmax"),
         ])
         tf.random.set_seed(3)
@@ -222,6 +229,7 @@ class CNN_3_device(tf.keras.Model):
             layers.Flatten(),
             layers.Dense(26, activation="softmax"),
         ])
+        tf.random.set_seed(3)
         self.compile(optimizer = self.optimizer, loss = self.loss)
         
        

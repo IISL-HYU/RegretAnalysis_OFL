@@ -4,9 +4,7 @@ import tensorflow as tf
 import emnist
 
 def EMNIST_data():
-    print(emnist.list_datasets())
     images, labels = emnist.extract_training_samples('letters')
-    print(images.shape)
     images = images.reshape((124800, 28, 28, 1))
     images = images / 255.0
 

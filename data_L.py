@@ -7,6 +7,7 @@ def EMNIST_data():
     images, labels = emnist.extract_training_samples('letters')
     images = images.reshape((124800, 28, 28, 1))
     images = images / 255.0
+    labels = labels - 1
 
     return 'ENMIST', images, labels, -3
 

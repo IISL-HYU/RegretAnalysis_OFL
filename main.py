@@ -48,7 +48,10 @@ Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
-for model in Model_list: model.pre_train(x_train[0:20000], y_train[0:20000])
+initial_weights = Model_list[0].pre_train(x_train[0:20000], y_train[0:20000])
+for model in Model_list:
+    for i in range(K+1):
+        model[i].set_weights(initial_weights)
 
 iter_max = 25
 i_max = len(y_train) // K

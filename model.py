@@ -59,9 +59,8 @@ class OFL_Model(list):
         K = self.K
         self[K].fit(x_train, y_train, epochs=1)
         weights = self[K].get_weights()
-        for i in range(K):
-            self[i].gradient_sum = 0
-            self[i].set_weights(weights)
+        
+        return weights
         
             
     def train(self, x_train, y_train, is_period):
@@ -212,7 +211,7 @@ class CNN_2_device(tf.keras.Model):
 
 class CNN_3_device(tf.keras.Model):
     def __init__(self):
-        super(CNN_device, self).__init__()
+        super(CNN_3_device, self).__init__()
 
         self.gradient_sum = 0
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
@@ -246,7 +245,6 @@ class CNN_3_device(tf.keras.Model):
         else :
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
-        print(accuracy)
         return accuracy
     
     def call(self, inputs):

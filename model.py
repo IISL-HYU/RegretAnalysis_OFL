@@ -71,8 +71,9 @@ class OFL_Model(list):
         for i in range(K):
             result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
         if is_period:
-            result = self[K].train(x_train, y_train.flatten(), is_period, self.L)        
-            result = result * K
+            result = 0
+            for i in range(K):
+                result += self[K].test(x_train[i:i+1], y_train[i:i+1])        
         self.latest_result += result
         self.result_list.append(self.latest_result)
         
@@ -204,6 +205,14 @@ class CNN_2_device(tf.keras.Model):
             for i in range(len(gradient)):
                 self.gradient_sum[i] += gradient[i]
         return accuracy
+    
+    def test(self, x_train, y_train):
+        y_pred = self(x_train, training = False)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        self.metric.reset_state()
+        
+        return accuracy    
     
     def call(self, inputs):
         return self.dense(inputs)

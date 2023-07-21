@@ -55,14 +55,13 @@ class OFL_Model(list):
             server_model = Time_device(window=input_size)
             self.append(server_model)
     
-    def pre_train(self, x_train, y_train):
+    def pre_train(self, x_train, y_train, epoch):
         K = self.K
-        self[K].fit(x_train, y_train, epochs=1)
+        self[K].fit(x_train, y_train, epochs=epoch)
         weights = self[K].get_weights()
         
         return weights
         
-            
     def train(self, x_train, y_train, is_period):
         K = self.K
         client_list = random_selection(K, self.prob)
@@ -71,19 +70,21 @@ class OFL_Model(list):
         result = 0
         for i in range(K):
             result += self[i].train(x_train[i:i+1], y_train[i:i+1], is_period, self.L)
+        if is_period:
+            result = self[K].train(x_train, y_train.flatten(), is_period, self.L)        
+            result = result * K
+        self.latest_result += result
+        self.result_list.append(self.latest_result)
+        
+        #Transmission
         if not is_period:
-            for i in range(self.L):
-                self.latest_result += result
-                self.result_list.append(self.latest_result)
-
-            #Transmission
             grad_sample = self[0].gradient_sum
             if self.grad_len == 0:
-              self.grad_len = len(grad_sample)
-              for i in range(self.grad_len):
-                  layer_shape = grad_sample[i].get_shape()
-                  layer_len = len(grad_sample[i].numpy().flatten())
-                  self.grad_info += (layer_shape, layer_len)
+                self.grad_len = len(grad_sample)
+                for i in range(self.grad_len):
+                    layer_shape = grad_sample[i].get_shape()
+                    layer_len = len(grad_sample[i].numpy().flatten())
+                    self.grad_info += (layer_shape, layer_len)
             
             grad = []
             grad_len = self.grad_len
@@ -184,7 +185,6 @@ class CNN_2_device(tf.keras.Model):
             layers.Conv2D(64, kernel_size=(3, 3), padding='same', activation="relu"),
             layers.MaxPooling2D(pool_size=(2, 2)),
             layers.Flatten(),
-            layers.Dense(32, activation="relu"),
             layers.Dense(10, activation="softmax"),
         ])
         self.compile(optimizer = self.optimizer, loss = self.loss)
@@ -372,9 +372,8 @@ if __name__ == '__main__':
   (x,y), (x1,y1) = tf.keras.datasets.mnist.load_data()
   x = x.reshape((60000, 28, 28, 1))
   x = x / 255.0
-  print(time.ctime())
   for j in range(100):
     for i in range(1):
-      model.train(x[5*i : 5*(i+1)], y[5*i : 5*(i+1)], 0)
+      model.train(x[5*i : 5*(i+1)], y[5*i : 5*(i+1)], 1)
     print(model.pull_last_result())
 

@@ -5,23 +5,34 @@ task = 'clf'
 
 code = input('Code:')
 
-with open(f"./result_L/{task}_FedOGD_{code}_0.1.pkl", "rb") as f:
+with open(f"./result_L/{task}_FedOGD_{code}.pkl", "rb") as f:
     r1 = pickle.load(f)
-with open(f"./result_L/{task}_OFedAvg_{code}_0.2.pkl", "rb") as f:
+with open(f"./result_L/{task}_OFedAvg_{code}.pkl", "rb") as f:
     r2 = pickle.load(f)
-# with open(f"./result_L/{task}_FedOMD_{code}.pkl", "rb") as f:
-#     r3 = pickle.load(f)
-with open(f"./result_L/{task}_OFedIQ_{code}_0.1.pkl", "rb") as f:
+with open(f"./result_L/{task}_FedOMD_{code}.pkl", "rb") as f:
+    r3 = pickle.load(f)
+with open(f"./result_L/{task}_OFedIQ_{code}.pkl", "rb") as f:
     r4 = pickle.load(f)
+
+last = 0
+for i in range(5000, 5100):
+    print(i, r3[i] * (i+1) - last)
+    last = r3[i] * (i+1)
+    
+last = 0
+for i in range(5000, 5100):
+    print(i, r2[i] * (i+1) - last)
+    last = r2[i] * (i+1)
+
 
 l1 = list(range(len(r1))) 
 l2 = list(range(len(r2)))
-# l3 = list(range(len(r3)))
+l3 = list(range(len(r3)))
 l4 = list(range(len(r4)))
 
 plt.plot(l1, r1, 'black', label=r'FedOGD')
 plt.plot(l2, r2, 'red', label=r'OFedAvg ($\mathdefault{p=0.05}$)')
-# plt.plot(l3, r3, 'blue', label=r'FedOMD ($\mathdefault{L=20}$)')
+plt.plot(l3, r3, 'blue', label=r'FedOMD ($\mathdefault{L=20}$)')
 plt.plot(l4, r4, 'green', label=r'OFedIQ ($\mathdefault{p=0.3004}$)')
 
 plt.xlabel('time step (t)')

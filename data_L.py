@@ -32,7 +32,7 @@ def data_shuffle(x_train, y_train):
     random.shuffle(tmp)
     x_train, y_train = zip(*tmp)
 
-    return np.array(x_train), y_train
+    return np.array(x_train), np.array(y_train)
     
     
 if __name__ == '__main__':

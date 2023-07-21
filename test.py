@@ -1,15 +1,10 @@
-import tensorflow as tf
-import keras
-from keras import layers
+from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 
-model = tf.keras.Sequential([
-            tf.keras.Input(shape=(32, 32, 3)),
-            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
-            layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Conv2D(64, kernel_size=(3, 3), padding='same', activation="relu"),
-            layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Flatten(),
-            layers.Dense(32, activation="relu"),
-            layers.Dense(10, activation="softmax"),
-        ])
-model.summary()
+data, x_train, y_train, input_size = CIFAR_10_data()
+
+
+def test(data):
+    print(type(data))
+    
+    
+test(y_train[0:100])

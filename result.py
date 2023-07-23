@@ -14,16 +14,6 @@ with open(f"./result_L/{task}_FedOMD_{code}.pkl", "rb") as f:
 with open(f"./result_L/{task}_OFedIQ_{code}.pkl", "rb") as f:
     r4 = pickle.load(f)
 
-last = 0
-for i in range(5000, 5100):
-    print(i, r3[i] * (i+1) - last)
-    last = r3[i] * (i+1)
-    
-last = 0
-for i in range(5000, 5100):
-    print(i, r2[i] * (i+1) - last)
-    last = r2[i] * (i+1)
-
 
 l1 = list(range(len(r1))) 
 l2 = list(range(len(r2)))

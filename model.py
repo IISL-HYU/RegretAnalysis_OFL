@@ -91,7 +91,7 @@ class OFL_Model(list):
             grad_len = self.grad_len
             grad_info = self.grad_info
             for idx, i in enumerate(client_list):
-                grad_flat = np.array([])
+                grad_flat = np.array([], dtype=np.float64)
                 grad_tmp = self[i].gradient_sum
                 for j in range(grad_len):
                     tmp_flat = grad_tmp[j].numpy().flatten()
@@ -158,7 +158,6 @@ class CNN_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
-        self.metric.reset_state()
 
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient
@@ -197,7 +196,6 @@ class CNN_2_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
-        self.metric.reset_state()
 
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient
@@ -246,7 +244,6 @@ class CNN_3_device(tf.keras.Model):
         gradient = tape.gradient(loss, self.trainable_variables)
         self.metric.update_state(y_train, y_pred)
         accuracy = self.metric.result().numpy()
-        self.metric.reset_state()
 
         if L == 1 or is_period == 1:
             self.gradient_sum = gradient

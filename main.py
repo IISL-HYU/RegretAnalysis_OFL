@@ -6,9 +6,9 @@ from data   import Room_data
 from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
-K = 100
+K = 1000
 D = 60362                                                                                          # MNIST 34826 / CIFAR_10 150826(60362) / EMNIST 60442
-P = 0.10
+P = 0.02
 
 def opt_param(p1, D, print_result):
     
@@ -48,12 +48,12 @@ Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
-initial_weights = Model_list[0].pre_train(x_train[0:15000], y_train[0:15000], 1)                    # Pre-train data length
+initial_weights = Model_list[0].pre_train(x_train[0:10], y_train[0:10], 1)                    # Pre-train data length
 for model in Model_list:                                                                            ## C:20000, E:100, M:1
     for i in range(K+1):
         model[i].set_weights(initial_weights)
 
-iter_max = 30                                                                                       # iter_max
+iter_max = 25                                                                                       # iter_max
 i_max = len(y_train) // K                                                                           ## C:20, E:15, M:15
 print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)
@@ -71,7 +71,7 @@ for iter in range(iter_max):
 
 for model in Model_list:
     result = model.pull_result()
-    with open(f"./result_L/{task}_{model.name}_{data}_{K}_{P}.pkl","wb") as f:
+    with open(f"./result_L/{task}_{model.name}_{data}_{K}_{P}_2.pkl","wb") as f:
         pickle.dump(result, f)
       
 print("Finished.")

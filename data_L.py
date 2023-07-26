@@ -9,7 +9,7 @@ def EMNIST_data():
     images = images / 255.0
     labels = labels - 1
 
-    return 'ENMIST', images, labels, -3
+    return 'EMNIST', images, labels, -3
 
 
 def MNIST_data(iid = True, shuffle = False):

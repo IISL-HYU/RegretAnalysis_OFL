@@ -307,6 +307,14 @@ class Clf_device(tf.keras.Model):
                 self.gradient_sum[i] += gradient[i]
         return accuracy
     
+    def test(self, x_train, y_train):
+        y_pred = self(x_train, training = False)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        self.metric.reset_state()
+        
+        return accuracy 
+    
     def call(self, inputs):
         return self.dense(inputs)
 
@@ -317,14 +325,12 @@ class Reg_device(tf.keras.Model):
         self.gradient_sum = 0
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
         self.loss = tf.keras.losses.MeanSquaredError()
-        self.kernel_initializer = tf.keras.initializers.RandomNormal(stddev=0.01)
-        self.bias_initializer=tf.keras.initializers.Zeros()
         self.input_size = input_size
         
         self.dense = tf.keras.Sequential([
             tf.keras.Input(shape=(input_size, 1)),
-            layers.Dense(64, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
-            layers.Dense(64, activation='relu', kernel_initializer=self.kernel_initializer, bias_initializer=self.bias_initializer),
+            layers.Dense(64, activation='relu'),
+            layers.Dense(64, activation='relu'),
             layers.Dense(1)
         ])
         tf.random.set_seed(3)
@@ -344,6 +350,12 @@ class Reg_device(tf.keras.Model):
         
         return loss.numpy()
     
+    def test(self, x_train, y_train):
+        y_pred = self(x_train, training = False)
+        loss = self.loss(y_train, y_pred)
+        
+        return loss.numpy() 
+    
     def call(self, inputs):
         return self.dense(inputs)
 
@@ -354,8 +366,6 @@ class Time_device(tf.keras.Model):
         self.gradient_sum = 0
         self.optimizer = tf.keras.optimizers.Adam(learning_rate=0.01)
         self.loss = tf.keras.losses.MeanSquaredError()
-        # self.kernel_initializer = tf.keras.initializers.RandomNormal(stddev=0.01)
-        # self.bias_initializer=tf.keras.initializers.Zeros()
         self.window = window
         
         #MNIST CNN Model

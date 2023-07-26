@@ -2,13 +2,13 @@ import time
 import pickle
 import numpy as np
 
-from data   import Room_data
+from data   import Room_data, Air_data
 from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 1000
-D = 60442                                       # MNIST 34826 / CIFAR_10 150826(60362) / EMNIST 60442
-P = 0.04
+D = 4353 # MNIST 34826 / CIFAR_10 150826(60362) / EMNIST 60442 / Air 4353 / Room 5380
+P = 0.02
 
 def opt_param(p1, D, print_result):
     
@@ -37,8 +37,9 @@ def opt_param(p1, D, print_result):
     return min_index, min_alpha, int(min_alpha * D), min_p2
 s, _, b, p = opt_param(P, D, True)
 
-data, x_train, y_train, input_size = EMNIST_data()                                                # MNIST_data() #Room_data()
-task = 'clf'                                                                                        # task type
+data, x_train, y_train, input_size = Air_data()                                                # MNIST_data() #Room_data()
+print("Input Dimension: ", input_size)
+task = 'reg'                                                                                        # task type
 
 Model_list = []
 Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
@@ -48,12 +49,13 @@ Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
-initial_weights = Model_list[0].pre_train(x_train[0:10], y_train[0:10], 1)                    # Pre-train data length
+# initial_weights = Model_list[0].pre_train(x_train[0:10], y_train[0:10], 1)                    # Pre-train data length
+initial_weights = Model_list[0][0].get_weights()
 for model in Model_list:                                                                            ## C:20000, E:100, M:1
     for i in range(K+1):
         model[i].set_weights(initial_weights)
 
-iter_max = 20                                                                                       # iter_max
+iter_max = 10                                                                                       # iter_max
 i_max = len(y_train) // K                                                                           ## C:20, E:15, M:15
 print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)
@@ -71,7 +73,7 @@ for iter in range(iter_max):
 
 for model in Model_list:
     result = model.pull_result()
-    with open(f"./result_L/{task}_{model.name}_{data}_{K}_{P}_2.pkl","wb") as f:
+    with open(f"./result_L/{task}_{model.name}_{data}_{K}_{P}.pkl","wb") as f:
         pickle.dump(result, f)
       
 print("Finished.")

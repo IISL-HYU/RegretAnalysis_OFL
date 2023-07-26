@@ -75,8 +75,9 @@ class OFL_Model(list):
             for i in range(K):
                 result += self[K].test(x_train[i:i+1], y_train[i:i+1])        
         self.latest_result += result
+        print(result, end=' ')
         self.result_list.append(self.latest_result)
-        
+
         #Transmission
         if not is_period:
             grad_sample = self[0].gradient_sum

@@ -1,14 +1,12 @@
-import tensorflow as tf
-import keras
-from keras import layers
+import pickle
+import matplotlib.pyplot as plt
 
-model = tf.keras.Sequential([
-            tf.keras.Input(shape=(32, 32, 3)),
-            layers.Conv2D(32, kernel_size=(3, 3), padding='same', activation="relu"),
-            layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Conv2D(64, kernel_size=(3, 3), padding='same', activation="relu"),
-            layers.MaxPooling2D(pool_size=(2, 2)),
-            layers.Flatten(),
-            layers.Dense(10, activation="softmax"),
-        ])
-model.summary()
+code = input('Code:')
+
+with open(f"./result_L/clf_FedOMD_{code}.pkl", "rb") as f:
+    r1 = pickle.load(f)
+    
+for i in range(1000):
+    print("%.4f" %r1[i], end=' ')
+    if (i+1) % 25 == 0:
+        print()

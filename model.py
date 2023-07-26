@@ -166,6 +166,14 @@ class CNN_device(tf.keras.Model):
                 self.gradient_sum[i] += gradient[i]
         return accuracy
     
+    def test(self, x_train, y_train):
+        y_pred = self(x_train, training = False)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        self.metric.reset_state()
+        
+        return accuracy 
+
     def call(self, inputs):
         return self.dense(inputs)
 
@@ -252,6 +260,14 @@ class CNN_3_device(tf.keras.Model):
                 self.gradient_sum[i] += gradient[i]
         return accuracy
     
+    def test(self, x_train, y_train):
+        y_pred = self(x_train, training = False)
+        self.metric.update_state(y_train, y_pred)
+        accuracy = self.metric.result().numpy()
+        self.metric.reset_state()
+        
+        return accuracy 
+
     def call(self, inputs):
         return self.dense(inputs)
 

@@ -7,8 +7,8 @@ from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 1000
-D = 60362                                                                                          # MNIST 34826 / CIFAR_10 150826(60362) / EMNIST 60442
-P = 0.02
+D = 60442                                       # MNIST 34826 / CIFAR_10 150826(60362) / EMNIST 60442
+P = 0.04
 
 def opt_param(p1, D, print_result):
     
@@ -37,7 +37,7 @@ def opt_param(p1, D, print_result):
     return min_index, min_alpha, int(min_alpha * D), min_p2
 s, _, b, p = opt_param(P, D, True)
 
-data, x_train, y_train, input_size = CIFAR_10_data()                                                # MNIST_data() #Room_data()
+data, x_train, y_train, input_size = EMNIST_data()                                                # MNIST_data() #Room_data()
 task = 'clf'                                                                                        # task type
 
 Model_list = []
@@ -53,7 +53,7 @@ for model in Model_list:                                                        
     for i in range(K+1):
         model[i].set_weights(initial_weights)
 
-iter_max = 25                                                                                       # iter_max
+iter_max = 20                                                                                       # iter_max
 i_max = len(y_train) // K                                                                           ## C:20, E:15, M:15
 print()
 print("Total timesteps :", iter_max*i_max, "| Data reuse :", iter_max, "| steps per dataset :", i_max)

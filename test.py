@@ -1,17 +1,17 @@
 import pickle
 import matplotlib.pyplot  as plt
 
-task = 'reg'
+task = 'clf'
 
 code = input('Code:')
 
-with open(f"./result/{task}_FedOGD_{code}.pkl", "rb") as f:
+with open(f"./result_L/{task}_FedOGD_{code}.pkl", "rb") as f:
     r1 = pickle.load(f)
-with open(f"./result/{task}_OFedAvg_{code}.pkl", "rb") as f:
+with open(f"./result_L/{task}_OFedAvg_{code}.pkl", "rb") as f:
     r2 = pickle.load(f)
-with open(f"./result/{task}_FedOMD_{code}.pkl", "rb") as f:
+with open(f"./result_L/{task}_FedOMD_{code}.pkl", "rb") as f:
     r3 = pickle.load(f)
-with open(f"./result/{task}_OFedIQ_{code}.pkl", "rb") as f:
+with open(f"./result_L/{task}_OFedIQ_{code}.pkl", "rb") as f:
     r4 = pickle.load(f)
 
 

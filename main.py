@@ -3,11 +3,11 @@ import pickle
 import numpy as np
 
 from data   import Room_data, Air_data
-from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
+#from data_L import CIFAR_10_data, MNIST_data, EMNIST_data, data_shuffle
 from model  import OFL_Model
 
 K = 1000
-D = 4353 # MNIST 34826 / CIFAR_10 150826(60362) / EMNIST 60442 / Air 4353 / Room 5380
+D = 60362 # MNIST 34826 / CIFAR_10 60362 / EMNIST 60442 / Air 4353 / Room 5380
 P = 0.02
 
 def opt_param(p1, D, print_result):

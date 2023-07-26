@@ -1,7 +1,7 @@
 import pickle
 import matplotlib.pyplot  as plt
 
-task = 'reg'
+task = 'clf'
 
 code = input('Code:')
 
@@ -22,9 +22,10 @@ l4 = list(range(len(r4)))
 
 # Normal
 plt.plot(l1, r1, 'black', label=r'FedOGD')
-plt.plot(l2, r2, 'blue', label=r'OFedAvg ($\mathdefault{p=0.02}$)')
-plt.plot(l3, r3, 'red', label=r'FedOMD ($\mathdefault{L=50}$)')
-plt.plot(l4, r4, 'green', label=r'OFedIQ ($\mathdefault{p=0.1503}$)')
+plt.plot(l4, r4, 'green', label=r'OFedIQ ($\mathdefault{L=1,p=0.251,s=8,b=1767}$)')
+plt.plot(l2, r2, 'blue', label=r'OFedAvg ($\mathdefault{p=0.04}$)')
+plt.plot(l3, r3, 'red', label=r'FedOMD ($\mathdefault{L=25}$)')
+
 
 plt.xlabel('time step (t)')
 

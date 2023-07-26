@@ -52,10 +52,10 @@ def Air_data():
     return 'Air', X_train, y_train, input_size
 
 def Room_data():
-    trainData = pd.read_csv("dataset/Occupancy_Estimation.csv")
+    trainData = pd.read_csv("dataset/Occupancy_Estimation_original.csv")
     x_train = trainData.iloc[:,:14]
     x_train = x_train.values
-    y_train = trainData.iloc[:,14]
+    y_train = trainData.iloc[:,16]
     y_train = y_train.array
     input_size = len(x_train[0])
     

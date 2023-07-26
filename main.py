@@ -41,10 +41,10 @@ data, x_train, y_train, input_size = EMNIST_data()                              
 task = 'clf'                                                                                        # task type
 
 Model_list = []
-# Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
-# Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
+Model_list.append(OFL_Model('FedOGD', task, K, [False, 0, 0], 1, 1, input_size))
+Model_list.append(OFL_Model('OFedAvg', task, K, [False, 0, 0], P, 1, input_size))
 Model_list.append(OFL_Model('FedOMD', task, K, [False, 0, 0], 1, int(1/P), input_size))
-# Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
+Model_list.append(OFL_Model('OFedIQ', task, K, [True, s, b], p, 1, input_size))
 print("========= Model_list is generated ===================")
 print()
 
@@ -65,7 +65,6 @@ for iter in range(iter_max):
     for model in Model_list:
         print("<", model.name, ">")
         for i in range(i_max):
-            if (((i_max * iter) + (i+1)) % model.L) == 0: print()
             model.train(x_train[K*i : K*(i+1)], y_train[K*i : K*(i+1)], ((i_max * iter) + (i+1)) % model.L)
         last_acc = model.pull_last_result()
         print(model.name, "| Accuracy =", last_acc, "% | Time =", time.ctime())

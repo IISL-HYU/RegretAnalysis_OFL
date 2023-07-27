@@ -1,7 +1,7 @@
 import pickle
 import matplotlib.pyplot  as plt
 
-task = 'clf'
+task = 'reg'
 
 code = input('Code:')
 

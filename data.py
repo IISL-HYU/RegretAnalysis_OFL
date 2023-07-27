@@ -99,7 +99,7 @@ def Energy_data():
     X_train = [list(i) for i in zip(*X)]
     X_train = np.array(X_train).reshape(T, input_size, 1)
     
-    return X_train, y_train, input_size
+    return 'Energy', X_train, y_train, input_size
 
 
 def NN5_data():

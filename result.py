@@ -37,7 +37,7 @@ elif task == 'reg':
 
 plt.rcParams["font.family"] = "Times New Roman"
 plt.grid()
-plt.legend()
+plt.legend(loc=2)
 
 plt.savefig(f'./Figures_L/{task}_{code}.png', dpi=200, facecolor="white")
 plt.show()
